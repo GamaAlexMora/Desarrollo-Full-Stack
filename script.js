@@ -1,87 +1,108 @@
-// Lógica para el formulario de registro
-document.getElementById('register-form').addEventListener('submit', (e) => {
-  e.preventDefault();
+// script.js
 
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirm-password').value;
+document.addEventListener('DOMContentLoaded', () => {
+  // Obtener los formularios
+  const loginForm = document.getElementById('sign-in-form');
+  const registerForm = document.getElementById('register-form');
+  const toggleLink = document.getElementById('toggleLink');
   const errorMessage = document.getElementById('error-message');
 
-  // Validar si las contraseñas coinciden
-  if (password !== confirmPassword) {
-    errorMessage.textContent = "Las contraseñas no coinciden.";
-    errorMessage.style.display = "block";
-    return;
+  // Función para cambiar entre formularios
+  function toggleForms() {
+      if (loginForm && registerForm) {
+          if (loginForm.style.display === 'none') {
+              loginForm.style.display = 'block';
+              registerForm.style.display = 'none';
+          } else {
+              loginForm.style.display = 'none';
+              registerForm.style.display = 'block';
+          }
+      }
   }
 
-  // Validar si los campos están vacíos
-  if (!username || !password) {
-    errorMessage.textContent = "Todos los campos son requeridos.";
-    errorMessage.style.display = "block";
-    return;
+  // Manejar el cambio de formulario
+  if (toggleLink) {
+      toggleLink.addEventListener('click', (event) => {
+          event.preventDefault();
+          toggleForms();
+      });
   }
 
-  // Hacer la solicitud al backend para registrar al usuario
-  fetch('/api/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username, password, confirmPassword }),
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Usuario registrado exitosamente.');
-      window.location.href = "sign-in.html"; // Redirigir a inicio de sesión
-    } else {
-      errorMessage.textContent = data.message;
-      errorMessage.style.display = "block";
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    errorMessage.textContent = "Hubo un error al registrar el usuario.";
-    errorMessage.style.display = "block";
-  });
-});
+  // Manejo del registro de usuario
+  if (registerForm) {
+      registerForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
 
-// Lógica para el formulario de inicio de sesión
-document.getElementById('sign-in-form').addEventListener('submit', (e) => {
-e.preventDefault();
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+          const confirmPassword = document.getElementById('confirm-password').value;
 
-const username = document.getElementById('username').value;
-const password = document.getElementById('password').value;
-const errorMessage = document.getElementById('error-message');
+          if (!username || !password || !confirmPassword) {
+              errorMessage.textContent = 'Por favor, completa todos los campos.';
+              errorMessage.style.display = 'block';
+              return;
+          }
+          if (password !== confirmPassword) {
+              errorMessage.textContent = 'Las contraseñas no coinciden.';
+              errorMessage.style.display = 'block';
+              return;
+          }
 
-// Validar si los campos están vacíos
-if (!username || !password) {
-  errorMessage.textContent = "Todos los campos son requeridos.";
-  errorMessage.style.display = "block";
-  return;
-}
-
-// Hacer la solicitud al backend para autenticar al usuario
-fetch('/api/login', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ username, password }),
-})
-.then(response => response.json())
-.then(data => {
-  if (data.success) {
-    alert('Inicio de sesión exitoso.');
-    window.location.href = "dashboard.html"; // Redirigir al dashboard
-  } else {
-    errorMessage.textContent = data.message;
-    errorMessage.style.display = "block";
+          try {
+              const response = await fetch('/api/register', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ username, password })
+              });
+              const data = await response.json();
+              if (data.success) {
+                  alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                  toggleForms();
+              } else {
+                  errorMessage.textContent = 'Error: ' + data.message;
+                  errorMessage.style.display = 'block';
+              }
+          } catch (error) {
+              console.error('Error en el registro:', error);
+              errorMessage.textContent = 'Error en el servidor. Intenta de nuevo más tarde.';
+              errorMessage.style.display = 'block';
+          }
+      });
   }
-})
-.catch(error => {
-  console.error('Error:', error);
-  errorMessage.textContent = "Hubo un error al intentar iniciar sesión.";
-  errorMessage.style.display = "block";
-});
+
+  // Manejo del inicio de sesión
+  if (loginForm) {
+      loginForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+
+          const username = document.getElementById('login-username').value;
+          const password = document.getElementById('login-password').value;
+
+          if (!username || !password) {
+              errorMessage.textContent = 'Por favor, completa todos los campos.';
+              errorMessage.style.display = 'block';
+              return;
+          }
+
+          try {
+              const response = await fetch('/api/login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ username, password })
+              });
+              const data = await response.json();
+              if (data.success) {
+                  alert('Inicio de sesión exitoso.');
+                  window.location.href = 'dashboard.html';
+              } else {
+                  errorMessage.textContent = 'Error: ' + data.message;
+                  errorMessage.style.display = 'block';
+              }
+          } catch (error) {
+              console.error('Error en el inicio de sesión:', error);
+              errorMessage.textContent = 'Error en el servidor. Intenta de nuevo más tarde.';
+              errorMessage.style.display = 'block';
+          }
+      });
+  }
 });

@@ -1,47 +1,34 @@
-document.getElementById('register-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-  
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirm-password').value;
-    const errorMessage = document.getElementById('error-message');
-  
-    // Validar si las contraseñas coinciden
-    if (password !== confirmPassword) {
-      errorMessage.textContent = "Las contraseñas no coinciden.";
-      errorMessage.style.display = "block";
-      return;
-    }
-  
-    // Validar si los campos están vacíos
-    if (!username || !password) {
-      errorMessage.textContent = "Todos los campos son requeridos.";
-      errorMessage.style.display = "block";
-      return;
-    }
-  
-    // Hacer la solicitud al backend para registrar al usuario
-    fetch('/api/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password, confirmPassword }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert('Usuario registrado exitosamente.');
-        window.location.href = "sign-in.html"; // Redirigir a inicio de sesión
-      } else {
-        errorMessage.textContent = data.message;
-        errorMessage.style.display = "block";
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      errorMessage.textContent = "Hubo un error al registrar el usuario.";
-      errorMessage.style.display = "block";
-    });
-  });
-  
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <link rel="stylesheet" href="assets/dist/css/bootstrap.min.css"> <!-- Añadir CSS de Bootstrap si es necesario -->
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Registro</h2>
+        <form id="register-form">
+            <div class="mb-3">
+                <label for="username" class="form-label">Usuario:</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="confirm-password" class="form-label">Confirmar Contraseña:</label>
+                <input type="password" id="confirm-password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
+        <p id="error-message" style="color: red; display: none;"></p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="index.js"></script> <!-- Enlazando el script de JavaScript -->
+    <script src="scripts.js"></script> <!-- Enlazando el segundo script de JavaScript -->
+</body>
+</html>
