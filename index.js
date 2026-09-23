@@ -1,30 +1,85 @@
-// Importar las dependencias necesarias
 const express = require('express');
-const mysql = require('mysql2');
-require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const connection = require('./db');
 
-// Crear una aplicación Express
 const app = express();
-const port = 3000;
+app.use(express.json());
 
-// Configurar la conexión a la base de datos MySQL
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,        // localhost
-  user: process.env.DB_USER,        // localhost
-  password: process.env.DB_PASSWORD, // 1234
-  database: process.env.DB_NAME,    // nombre_de_tu_base_de_datos
-});
+app.post('/api/register', async (req, res) => {
+  const { username, password } = req.body;
 
-// Conectar a la base de datos
-db.connect((err) => {
-  if (err) {
-    console.error('Error al conectar a la base de datos: ' + err.stack);
-    return;
+  if (!username || !password || password.length < 8) {
+    return res.status(400).json({
+      success: false,
+      message: 'Usuario y contraseña de al menos 8 caracteres son requeridos.'
+    });
   }
-  console.log('Conexión a la base de datos MySQL establecida.');
+
+  try {
+    const passwordHash = await bcrypt.hash(password, 12);
+    connection.query(
+      'INSERT INTO users (username, password) VALUES (?, ?)',
+      [username, passwordHash],
+      (error) => {
+        if (error) {
+          return res.status(500).json({
+            success: false,
+            message: 'No fue posible registrar el usuario.'
+          });
+        }
+
+        return res.status(201).json({
+          success: true,
+          message: 'Usuario registrado con éxito.'
+        });
+      }
+    );
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Error procesando el registro.'
+    });
+  }
 });
 
-// Iniciar el servidor
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({
+      success: false,
+      message: 'Usuario y contraseña son requeridos.'
+    });
+  }
+
+  connection.query(
+    'SELECT id, username, password FROM users WHERE username = ? LIMIT 1',
+    [username],
+    async (error, results) => {
+      if (error || results.length === 0) {
+        return res.status(401).json({
+          success: false,
+          message: 'Credenciales incorrectas.'
+        });
+      }
+
+      const passwordMatches = await bcrypt.compare(password, results[0].password);
+      if (!passwordMatches) {
+        return res.status(401).json({
+          success: false,
+          message: 'Credenciales incorrectas.'
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: 'Inicio de sesión exitoso.'
+      });
+    }
+  );
+});
+
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
+  console.log(`Servidor corriendo en el puerto ${port}`);
 });

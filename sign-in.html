@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión</title>
+    <link rel="stylesheet" href="assets/dist/css/bootstrap.min.css"> <!-- Enlazando Bootstrap para estilos -->
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h2 class="text-center">Iniciar sesión</h2>
+
+        <!-- Formulario de inicio de sesión -->
+        <form id="sign-in-form">
+            <div class="mb-3">
+                <input type="text" id="username" class="form-control" placeholder="Nombre de usuario" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" id="password" class="form-control" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+        </form>
+
+        <!-- Mensaje de error -->
+        <p id="error-message" style="color: red; display: none;">Usuario o contraseña incorrectos.</p>
+
+        <!-- Botón para ir a la página de registro -->
+        <p>¿No tienes cuenta? <a href="register.html">Regístrate aquí</a></p>
+
+        <!-- Nuevo botón para redirigir al inicio -->
+        <button class="btn btn-secondary" onclick="window.location.href='index.html'">Ir al Inicio</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Asegúrate de tener jQuery si lo necesitas -->
+    <script src="index.js"></script> <!-- Enlazando el script principal -->
+    <script src="script.js"></script> <!-- Enlazando el script de inicio de sesión -->
+</body>
+</html>
